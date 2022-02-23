@@ -5,6 +5,7 @@ Python package providing management functionality for clld apps
 
 ``sh
 appconfig --config ./path/to/appconfig/apps/ ls
+
 env APPCONFIG_DIR=./path/to/appconfig/apps appconfig ls
 ``
 
