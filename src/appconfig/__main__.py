@@ -13,23 +13,24 @@ def main(args=None, catch_all=False, parsed_args=None, log=None):
     parser, subparsers = get_parser_and_subparsers('appconfig')
     register_subcommands(subparsers, appconfig.commands)
 
-    parser.add_argument('-c', '--config',
-                        nargs=1,
-                        default=[os.getenv('APPCONFIG_DIR', './')],
-                        help='path to apps dir, which also should contain apps.ini',
-                        dest='config_dir')
+    parser.add_argument(
+        '-c', '--config',
+        nargs=1,
+        default=[os.getenv('APPCONFIG_DIR', './')],
+        help='path to apps dir, which also should contain apps.ini',
+        dest='config_dir')
 
     args = parsed_args or parser.parse_args(args=args)
+
+    if (not hasattr(args, 'main')) or (not hasattr(args, 'config_dir')):
+        parser.print_help()
+        return 1
 
     try:
         appconfig.init(args.config_dir[0])
     except (FileNotFoundError, ValueError) as e:
         print(e)
         return(1)
-
-    if not hasattr(args, "main"):
-        parser.print_help()
-        return 1
 
     args.apps = appconfig.APPS
 
