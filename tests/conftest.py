@@ -13,9 +13,8 @@ def testdir():
 
 @pytest.fixture(scope='session')
 def config(testdir):
-    with pytest.warns(UserWarning, match='missing fabfile dir: testapp'):
-        appconfig.init(testdir)
-        result = Config.from_file(str(testdir / 'apps.ini'))
+    appconfig.init(testdir / 'apps')
+    result = Config.from_file(str(testdir / 'apps/apps.ini'))
     return result
 
 

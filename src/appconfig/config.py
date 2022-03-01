@@ -54,7 +54,7 @@ class Config(dict):
         if duplicates:
             raise ValueError('duplicate port(s): %r' % duplicates)
         for app in self.values():
-            if not app.fabfile_dir.exists():
+            if not app.fabfile_dir.exists():  # pragma: no cover
                 warnings.warn('missing fabfile dir: %s' % app.name)
 
 
