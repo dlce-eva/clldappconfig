@@ -1,6 +1,5 @@
 # appconfig - remote control for DLCE apps
 
-import os
 import pathlib
 
 from . import config
