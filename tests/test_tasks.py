@@ -3,12 +3,23 @@ import pytest
 from appconfig import tasks
 
 
-def test_init(mocker, app_name='nonname'):
-    mocker.patch('appconfig.APPS', {app_name: mocker.sentinel.app})
+def test_init(mocker, testdir):
+    mocker.patch('appconfig.tasks.helpers.caller_dir',
+                 return_value=testdir / 'apps/testapp/')
 
     try:
-        tasks.init(app_name)
-        assert tasks.APP is mocker.sentinel.app
+        tasks.init('testapp')
+        assert tasks.APP.name == 'testapp'
+    finally:
+        tasks.APP = None
+
+
+def test_init_environ(mocker, testdir):
+    mocker.patch('appconfig.tasks.os.environ', {'APPCONFIG_DIR': testdir / 'apps/'})
+
+    try:
+        tasks.init('testapp')
+        assert tasks.APP.name == 'testapp'
     finally:
         tasks.APP = None
 

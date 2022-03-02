@@ -11,10 +11,13 @@ To connect tasks to a certain app, the app's fabfile needs to import this module
 and run the init function, passing an app name defined in the global clld app config.
 """
 
-import functools
+import os
+import pathlib
 
+import functools
 import fabric.api
 
+import appconfig
 from .. import helpers
 
 __all__ = ['init', 'task_app_from_environment']
@@ -26,11 +29,26 @@ fabric.api.env.use_ssh_config = True  # configure your username in .ssh/config
 
 
 def init(app_name=None):
+    """initialize appconfig configuration.  Expects the following folder structure:
+
+    /.../apps.ini
+    /.../myapp/fabfile.py
+
+    so the parent of the apps fabfile directory has to contain the apps.ini.
+
+    Alternatively the environment varialbel APPCONFIG_DIR can be set with a path
+    to the directory containing the apps.ini file.
+    """
     global APP
-    from .. import APPS
+
+    if os.environ.get("APPCONFIG_DIR"):
+        appconfig.init(os.environ.get("APPCONFIG_DIR"))
+    else:
+        appconfig.init(pathlib.Path(helpers.caller_dir()).parent)
+
     if app_name is None:  # pragma: no cover
         app_name = helpers.caller_dirname()
-    APP = APPS[app_name]
+    APP = appconfig.APPS[app_name]
 
 
 def task_app_from_environment(func_or_environment):

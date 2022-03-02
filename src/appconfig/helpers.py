@@ -19,10 +19,10 @@ def getpwd(user, accept_empty=False):
     return pwd
 
 
-def caller_dirname(steps=1):
+def caller_dir(steps=1):
     """
 
-    >>> assert caller_dirname()
+    >>> assert caller_dir()
     """
     frame = sys._getframe(steps + 1)
 
@@ -31,6 +31,15 @@ def caller_dirname(steps=1):
     finally:
         del frame
 
+    return path
+
+
+def caller_dirname(steps=1):
+    """
+
+    >>> assert caller_dirname()
+    """
+    path = caller_dir(steps + 1)
     return os.path.basename(path)
 
 
