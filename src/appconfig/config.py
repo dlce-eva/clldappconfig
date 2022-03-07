@@ -164,5 +164,5 @@ class App(argparse.Namespace):
 
     @property
     def fabfile_dir(self):
-        from . import APPS_DIR
-        return APPS_DIR / self.name
+        import appconfig
+        return appconfig.APPS_DIR / self.name
