@@ -17,7 +17,7 @@ from fabtools import (
     require, files, python, postgres, nginx, system, service, supervisor, user)
 from clldutils import misc
 
-from .. import APPS, APPS_DIR
+import appconfig
 from .. import PKG_DIR
 from .. import helpers
 from .. import cdstar
@@ -37,7 +37,7 @@ TEMPLATE_DIR = PKG_DIR / 'templates'
 
 def template_context(app, workers=3):
     ctx = {
-        'PRODUCTION_HOST': env.host in APPS.production_hosts,
+        'PRODUCTION_HOST': env.host in appconfig.APPS.production_hosts,
         'app': app, 'env': env, 'workers': workers,
         'auth': '',
     }
@@ -91,7 +91,7 @@ def pip_freeze(app, packages=None):
                 print(line)
             yield line + '\n'
 
-    target = APPS_DIR / app.name / 'requirements.txt'
+    target = appconfig.APPS_DIR / app.name / 'requirements.txt'
     with target.open('w', encoding='ascii') as fp:
         fp.writelines(iterlines(stdout.splitlines()))
 

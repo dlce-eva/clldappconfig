@@ -14,7 +14,7 @@ pytestmark = pytest.mark.usefixtures('APP')
 
 @pytest.fixture(autouse=True)
 def init_cfg(mocker, testdir, config):
-    mocker.patch.multiple('appconfig.tasks.deployment',
+    mocker.patch.multiple('appconfig.tasks.deployment.appconfig',
                           APPS=config,
                           APPS_DIR=testdir)
 
@@ -68,7 +68,6 @@ def mocked_deployment(mocker):
 @pytest.fixture
 def mocked_ctx(mocker, config):
     mocker.patch.multiple('appconfig.tasks.deployment',
-                          APPS=config,
                           prompt=mocker.Mock(return_value='test'))
     env = mocker.patch('appconfig.tasks.deployment.env')
     env.configure_mock(host='vbox', environment='production')
@@ -101,7 +100,7 @@ def test_sudo_upload_template(mocked_ctx, tmp_path, mocker, config):
 @pytest.fixture
 def mocked_appsdir(mocker, tmp_path):
     # create a temporary APPS_DIR
-    mocker.patch('appconfig.tasks.deployment.APPS_DIR', tmp_path)
+    mocker.patch('appconfig.tasks.deployment.appconfig.APPS_DIR', tmp_path)
     appsdir = tmp_path / tasks.APP.name
     appsdir.mkdir(exist_ok=True)
     return appsdir
