@@ -33,3 +33,5 @@ apps
 ## TODO
 
 * make package installable, i.e. properly include datafiles, templates, etc
+
+[![Python package](https://github.com/dlce-eva/clldappconfig/actions/workflows/tests.yml/badge.svg)](https://github.com/dlce-eva/clldappconfig/actions/workflows/tests.yml)
