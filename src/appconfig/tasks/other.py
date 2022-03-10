@@ -47,7 +47,11 @@ def list_dumps(app):
     in env)"""
     if app.dbdump:
         for i, bs in enumerate(cdstar.get_bitstreams(app.dbdump), start=1):
-            print('{0}\t{1}\t{2}\t{3}\t{4}'.format(i, bs.datetime.isoformat(), bs.name, bs.size_h, bs.size))
+            print('{0}\t{1}\t{2}\t{3}\t{4}'.format(i,
+                                                   bs.datetime.isoformat(),
+                                                   bs.name,
+                                                   bs.size_h,
+                                                   bs.size))
 
 
 @task_app_from_environment
@@ -55,7 +59,9 @@ def remove_dumps(app, keep=10):
     """remove all but the last n db dumps from cdstar (requires cdstar api
     credentials in env)"""
     if app.dbdump:
-        for i, bs in enumerate([o for o in cdstar.get_bitstreams(app.dbdump) if o.name.startswith('db_dump_')], start=1):
+        for i, bs in enumerate([o for o in cdstar.get_bitstreams(app.dbdump)
+                                if o.name.startswith('db_dump_')],
+                               start=1):
             if i > int(keep):
                 print('deleting dump {0}'.format(bs.name))
                 bs.bitstream.delete()
@@ -71,7 +77,8 @@ def remove_single_dump(app, bsname):
     """
     success = False
     if app.dbdump:
-        for i, bs in enumerate([o for o in cdstar.get_bitstreams(app.dbdump) if o.name == bsname]):
+        for i, bs in enumerate([o for o in cdstar.get_bitstreams(app.dbdump)
+                                if o.name == bsname]):
             print('deleting dump {0}'.format(bs.name))
             bs.bitstream.delete()
             success = True

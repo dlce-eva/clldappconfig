@@ -27,8 +27,8 @@ from . import letsencrypt
 from . import task_app_from_environment
 
 __all__ = [
-    'deploy', 'start', 'stop', 'uninstall', 'sudo_upload_template', 'upgrade', 'upload_dump',
-    'download_backups',
+    'deploy', 'start', 'stop', 'uninstall', 'sudo_upload_template', 'upgrade',
+    'upload_dump', 'download_backups',
 ]
 
 PLATFORM = platform.system().lower()
@@ -64,8 +64,13 @@ def sudo_upload_template(template,
         context = (context or {}).copy()
         context.update(kwargs)
     tdir = TEMPLATE_DIR
-    if context and ('app' in context) and TEMPLATE_DIR.joinpath(context['app'].name, template).exists():
+    if (
+            context
+            and ('app' in context)
+            and TEMPLATE_DIR.joinpath(context['app'].name, template).exists()
+    ):
         tdir = TEMPLATE_DIR / context['app'].name
+
     files.upload_template(
         template,
         dest,
@@ -103,8 +108,8 @@ def check(app):
 
     if env.environment == 'production':
         if app.public:
-            # Production apps are served over HTTPS. If they are public, we can check the complete
-            # stack:
+            # Production apps are served over HTTPS. If they are public, we can
+            # check the complete stack:
             res_https = run('curl https://%s/_ping' % (app.domain))
             assert json.loads(res_https)['status'] == 'ok'
 
@@ -151,7 +156,11 @@ def stop(app, maintenance_hours=1):  # only tested implictly
 
 def require_supervisor(filepath, app, pause=False):  # only tested implictly
     # TODO: consider require.supervisor.process
-    sudo_upload_template('supervisor.conf', dest=str(filepath), mode='644', PAUSE=pause, app=app)
+    sudo_upload_template('supervisor.conf',
+                         dest=str(filepath),
+                         mode='644',
+                         PAUSE=pause,
+                         app=app)
 
 
 @task_app_from_environment
@@ -217,8 +226,8 @@ def deploy(app, with_alembic=False):
     ctx = template_context(app, workers=workers)
 
     #
-    # Create a virtualenv for the app and install the app package in development mode, i.e. with
-    # repository working copy in /usr/venvs/<APP>/src
+    # Create a virtualenv for the app and install the app package in development
+    # mode, i.e. with repository working copy in /usr/venvs/<APP>/src
     #
     require_venv(
         app.venv_dir,
@@ -244,7 +253,10 @@ def deploy(app, with_alembic=False):
     if not with_alembic and confirm('Recreate database?', default=False):
         stop.execute_inner(app)
         upload_sqldump(app)
-    elif exists(str(app.src_dir / 'alembic.ini')) and confirm('Upgrade database?', default=False):
+    elif (
+            exists(str(app.src_dir / 'alembic.ini'))
+            and confirm('Upgrade database?', default=False)
+    ):
         # Note: stopping the app is not strictly necessary, because
         #       the alembic revisions run in separate transactions!
         stop.execute_inner(app, maintenance_hours=app.deploy_duration)
@@ -411,7 +423,8 @@ def upload_sqldump(app, load=True):
         else:
             latest = cdstar.get_latest_bitstream(app.dbdump)
             fname, url = latest.name, latest.url
-            auth = '-u"{0}:{1}" '.format(os.environ['CDSTAR_USER_BACKUP'], os.environ['CDSTAR_PWD_BACKUP'])
+            auth = '-u"{0}:{1}" '.format(os.environ['CDSTAR_USER_BACKUP'],
+                                         os.environ['CDSTAR_PWD_BACKUP'])
         target = pathlib.PurePosixPath('/tmp') / fname
         run('curl -s -o {0} {1} {2}'.format(target, auth, url))
     else:

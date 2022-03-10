@@ -79,7 +79,7 @@ def task_app_from_environment(func_or_environment):
         return decorator
 
 
-from .deployment import *
-from .other import *
+from .deployment import *  # noqa: F403, E402
+from .other import *  # noqa: F403, E402
 
-__all__ += deployment.__all__ + other.__all__
+__all__ += deployment.__all__ + other.__all__  # noqa: F405

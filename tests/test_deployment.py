@@ -40,10 +40,13 @@ def mocked_deployment(mocker):
 
     getpwd = mocker.Mock(return_value='password')
     mocker.patch('appconfig.tasks.helpers.getpwd', getpwd)
+    get_latest_bitstream = mocker.Mock(
+        return_value=namedtuple('NamedBitstream', 'name, url')('bs_dump.sql.gz',
+                                                               'https://example.com')
+    )
     mocked = mocker.patch.multiple('appconfig.tasks.deployment',
         cd=mocker.DEFAULT,
-        cdstar=mocker.Mock(**{'get_latest_bitstream.return_value':
-                              namedtuple('NamedBitstream', 'name, url')('bs_dump.sql.gz', 'https://example.com')}),
+        cdstar=mocker.Mock(get_latest_bitstream=get_latest_bitstream),
         confirm=mocker.Mock(return_value=True),
         exists=mocker.Mock(return_value=True),
         files=mocker.DEFAULT,
@@ -59,7 +62,8 @@ def mocked_deployment(mocker):
         service=mocker.Mock(),
         sudo=mocker.Mock(return_value='/usr/venvs/__init__.py'),
         supervisor=mocker.Mock(),
-        system=mocker.Mock(**{'distrib_id.return_value': 'Ubuntu', 'distrib_codename.return_value': 'xenial'}),
+        system=mocker.Mock(**{'distrib_id.return_value': 'Ubuntu',
+                              'distrib_codename.return_value': 'xenial'}),
         time=mocker.Mock(),
     )
     return argparse.Namespace(getpwd=getpwd, **mocked)
@@ -199,8 +203,10 @@ def test_require_misc(mocked_deployment, mocker):
     deployment.require_bower(tasks.APP)
     deployment.require_grunt(tasks.APP)
     deployment.require_postgres(tasks.APP, drop=True)
-    deployment.require_config(tasks.APP.config, tasks.APP, deployment.template_context(tasks.APP))
-    deployment.require_venv('dir/', require_packages='test1', assets_name='test2', requirements='test3')
+    deployment.require_config(tasks.APP.config, tasks.APP,
+                              deployment.template_context(tasks.APP))
+    deployment.require_venv('dir/', require_packages='test1', assets_name='test2',
+                            requirements='test3')
     deployment.require_logging('logdir/', 'logrotate/dir/', None, None)
     deployment.require_nginx(deployment.template_context(tasks.APP))
     assert True
@@ -217,7 +223,8 @@ def test_http_auth(mocked_deployment, mocker):
 
 def test_upload_dump(mocked_deployment, mocker, capsys):
     # override the mock from mocked_deployment.
-    # TODO: check if we really need the pathlib mock in mocked_deployment or alter the mock there
+    # TODO: check if we really need the pathlib mock in mocked_deployment or
+    # alter the mock there
     mocker.patch('appconfig.tasks.deployment.pathlib.PurePosixPath',
                  mocker.Mock(side_effect=lambda x: pathlib.PurePosixPath(x)))
     tasks.upload_dump('production')
