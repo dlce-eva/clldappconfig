@@ -37,9 +37,3 @@ Using the old fabfiles works seemlessly with this version of appconfig.  It is
 expected that the apps dir has follows the old structure, ie. it should contain
 an `apps.ini` file and subdirectories for each app containing the individual
 fabfiles.
-
-## TODO
-
-* make package installable, i.e. properly include datafiles, templates, etc
-
-[![Python package](https://github.com/dlce-eva/clldappconfig/actions/workflows/tests.yml/badge.svg)](https://github.com/dlce-eva/clldappconfig/actions/workflows/tests.yml)
