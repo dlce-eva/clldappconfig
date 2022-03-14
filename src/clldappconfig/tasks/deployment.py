@@ -64,12 +64,6 @@ def sudo_upload_template(template,
         context = (context or {}).copy()
         context.update(kwargs)
     tdir = TEMPLATE_DIR
-    if (
-            context
-            and ('app' in context)
-            and TEMPLATE_DIR.joinpath(context['app'].name, template).exists()
-    ):
-        tdir = TEMPLATE_DIR / context['app'].name
 
     files.upload_template(
         template,

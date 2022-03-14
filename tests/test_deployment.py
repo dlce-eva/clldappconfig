@@ -88,9 +88,7 @@ def test_sudo_upload_template(mocked_ctx, tmp_path, mocker, config):
     files = mocker.patch('clldappconfig.tasks.deployment.files')
 
     # build TEMPLATE_DIR
-    tdir = tmp_path / 'testapppublic'
-    tdir.mkdir()
-    open(tdir / 'template', 'a').close()
+    open(tmp_path / 'template', 'a').close()
     mocker.patch('clldappconfig.tasks.deployment.TEMPLATE_DIR', tmp_path)
 
     deployment.sudo_upload_template('template', '/dst', mocked_ctx, app=config['testapppublic'])
@@ -98,7 +96,7 @@ def test_sudo_upload_template(mocked_ctx, tmp_path, mocker, config):
     print(dir(mocked_deployment))
     files.upload_template.called_with(template='template',
                                       dest='/dst',
-                                      template_dir=tdir)
+                                      template_dir=tmp_path)
 
 
 @pytest.fixture
