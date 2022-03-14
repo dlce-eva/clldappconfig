@@ -1,10 +1,10 @@
-from appconfig.tasks import letsencrypt
-from appconfig import tasks
+from clldappconfig.tasks import letsencrypt
+from clldappconfig import tasks
 
 
 def test_require_cert(APP, config, mocker):
-    sudo = mocker.patch('appconfig.tasks.letsencrypt.sudo')
-    mocker.patch('appconfig.tasks.letsencrypt.APPS', config)
+    sudo = mocker.patch('clldappconfig.tasks.letsencrypt.sudo')
+    mocker.patch('clldappconfig.tasks.letsencrypt.APPS', config)
 
     letsencrypt.require_cert(tasks.APP)
     letsencrypt.require_cert('example.com')

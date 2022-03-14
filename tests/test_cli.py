@@ -4,7 +4,7 @@ from urllib.error import HTTPError
 import pytest
 import pathlib
 
-from appconfig.__main__ import main
+from clldappconfig.__main__ import main
 
 
 def test_with_parsed_args():
@@ -33,12 +33,12 @@ def test_ls(capsys, log):
 
 def test_error(mocker):
     cfg_file = pathlib.Path(__file__).parent / 'apps'
-    mocker.patch('appconfig.commands.test_error.urlopen')
+    mocker.patch('clldappconfig.commands.test_error.urlopen')
 
     with pytest.raises(RuntimeError):
         main(['-c', str(cfg_file), 'test_error', 'testapp'])
 
     mocker.patch(
-        'appconfig.commands.test_error.urlopen',
+        'clldappconfig.commands.test_error.urlopen',
         mocker.Mock(side_effect=HTTPError('', 500, '', {}, None)))
     main(['-c', str(cfg_file), 'test_error', 'testapp'])

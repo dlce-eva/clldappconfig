@@ -5,8 +5,8 @@ import pathlib
 import pytest
 from collections import namedtuple
 
-from appconfig import tasks
-from appconfig.tasks import deployment
+from clldappconfig import tasks
+from clldappconfig.tasks import deployment
 
 
 pytestmark = pytest.mark.usefixtures('APP')
@@ -14,7 +14,7 @@ pytestmark = pytest.mark.usefixtures('APP')
 
 @pytest.fixture(autouse=True)
 def init_cfg(mocker, testdir, config):
-    mocker.patch.multiple('appconfig.tasks.deployment.appconfig',
+    mocker.patch.multiple('clldappconfig.tasks.deployment.appconfig',
                           APPS=config,
                           APPS_DIR=testdir)
 
@@ -39,12 +39,12 @@ def mocked_deployment(mocker):
             return ''
 
     getpwd = mocker.Mock(return_value='password')
-    mocker.patch('appconfig.tasks.helpers.getpwd', getpwd)
+    mocker.patch('clldappconfig.tasks.helpers.getpwd', getpwd)
     get_latest_bitstream = mocker.Mock(
         return_value=namedtuple('NamedBitstream', 'name, url')('bs_dump.sql.gz',
                                                                'https://example.com')
     )
-    mocked = mocker.patch.multiple('appconfig.tasks.deployment',
+    mocked = mocker.patch.multiple('clldappconfig.tasks.deployment',
         cd=mocker.DEFAULT,
         cdstar=mocker.Mock(get_latest_bitstream=get_latest_bitstream),
         confirm=mocker.Mock(return_value=True),
@@ -71,9 +71,9 @@ def mocked_deployment(mocker):
 
 @pytest.fixture
 def mocked_ctx(mocker, config):
-    mocker.patch.multiple('appconfig.tasks.deployment',
+    mocker.patch.multiple('clldappconfig.tasks.deployment',
                           prompt=mocker.Mock(return_value='test'))
-    env = mocker.patch('appconfig.tasks.deployment.env')
+    env = mocker.patch('clldappconfig.tasks.deployment.env')
     env.configure_mock(host='vbox', environment='production')
 
     return deployment.template_context(tasks.APP)
@@ -85,13 +85,13 @@ def test_template_context(mocked_ctx):
 
 
 def test_sudo_upload_template(mocked_ctx, tmp_path, mocker, config):
-    files = mocker.patch('appconfig.tasks.deployment.files')
+    files = mocker.patch('clldappconfig.tasks.deployment.files')
 
     # build TEMPLATE_DIR
     tdir = tmp_path / 'testapppublic'
     tdir.mkdir()
     open(tdir / 'template', 'a').close()
-    mocker.patch('appconfig.tasks.deployment.TEMPLATE_DIR', tmp_path)
+    mocker.patch('clldappconfig.tasks.deployment.TEMPLATE_DIR', tmp_path)
 
     deployment.sudo_upload_template('template', '/dst', mocked_ctx, app=config['testapppublic'])
 
@@ -104,7 +104,7 @@ def test_sudo_upload_template(mocked_ctx, tmp_path, mocker, config):
 @pytest.fixture
 def mocked_appsdir(mocker, tmp_path):
     # create a temporary APPS_DIR
-    mocker.patch('appconfig.tasks.deployment.appconfig.APPS_DIR', tmp_path)
+    mocker.patch('clldappconfig.tasks.deployment.appconfig.APPS_DIR', tmp_path)
     appsdir = tmp_path / tasks.APP.name
     appsdir.mkdir(exist_ok=True)
     return appsdir
@@ -122,8 +122,8 @@ def test_pip_freeze(mocked_deployment, mocked_appsdir, capsys):
 
 
 def test_check(mocked_deployment, mocker, config):
-    mocker.patch('appconfig.tasks.APP', config['testapppublic'])
-    env = mocker.patch('appconfig.tasks.deployment.env')
+    mocker.patch('clldappconfig.tasks.APP', config['testapppublic'])
+    env = mocker.patch('clldappconfig.tasks.deployment.env')
     env.configure_mock(host='vbox', environment='production')
     deployment.check(tasks.APP)
 
@@ -137,7 +137,7 @@ def test_upgrade(mocked_appsdir, mocked_deployment, capsys):
 @pytest.mark.parametrize('continue_anyways', [True, False])
 def test_deploy_outdated(mocked_deployment, mocker, capsys, continue_anyways):
     """Test behavior if local git master is behind upstream"""
-    mocker.patch.multiple('appconfig.tasks.deployment',
+    mocker.patch.multiple('clldappconfig.tasks.deployment',
                           misc=mocker.Mock(),
                           local=mocker.Mock(side_effect=['asdf1234', 'qwer5678']),
                           confirm=mocker.Mock(return_value=continue_anyways))
@@ -156,21 +156,21 @@ def test_deploy_outdated(mocked_deployment, mocker, capsys, continue_anyways):
 # ---------------- old tests ----------------
 
 def test_deploy_distrib(mocker):
-    di = mocker.patch('appconfig.tasks.deployment.system.distrib_id')
+    di = mocker.patch('clldappconfig.tasks.deployment.system.distrib_id')
     di.return_value = 'nondistribution'
     with pytest.raises(AssertionError):
         tasks.deploy('production')
 
     di.return_value = 'Ubuntu'
-    mocker.patch('appconfig.tasks.deployment.system.distrib_codename',
+    mocker.patch('clldappconfig.tasks.deployment.system.distrib_codename',
                  return_value='noncodename')
     with pytest.raises(ValueError, match='unsupported platform'):
         tasks.deploy('production')
 
 
 def test_deploy_public(mocker, config, mocked_deployment):
-    mocker.patch('appconfig.tasks.APP', config['testapppublic'])
-    mocker.patch('appconfig.tasks.deployment.misc', mocker.Mock())
+    mocker.patch('clldappconfig.tasks.APP', config['testapppublic'])
+    mocker.patch('clldappconfig.tasks.deployment.misc', mocker.Mock())
 
     with pytest.raises(FileNotFoundError):
         tasks.deploy('production')
@@ -183,7 +183,7 @@ def test_deploy_public(mocker, config, mocked_deployment):
                                                        ('test', True),
                                                        ('test', False)])
 def test_deploy(mocker, config, mocked_deployment, mocked_appsdir, environment, with_alembic):
-    mocker.patch('appconfig.tasks.deployment.misc', mocker.Mock())
+    mocker.patch('clldappconfig.tasks.deployment.misc', mocker.Mock())
 
     tasks.deploy(environment, with_alembic=with_alembic)
 
@@ -197,8 +197,8 @@ def test_require_misc(mocked_deployment, mocker):
     # kind of syntax check and to get 100% coverage.
     #
     # Maybe consider using '# pragma: no cover' instead.
-    mocker.patch('appconfig.tasks.APP.stack', 'django')
-    env = mocker.patch('appconfig.tasks.deployment.env')
+    mocker.patch('clldappconfig.tasks.APP.stack', 'django')
+    env = mocker.patch('clldappconfig.tasks.deployment.env')
     env.configure_mock(environment='production')
     deployment.require_bower(tasks.APP)
     deployment.require_grunt(tasks.APP)
@@ -213,7 +213,7 @@ def test_require_misc(mocked_deployment, mocker):
 
 
 def test_http_auth(mocked_deployment, mocker):
-    sudo = mocker.patch('appconfig.tasks.deployment.sudo')
+    sudo = mocker.patch('clldappconfig.tasks.deployment.sudo')
     auth = deployment.http_auth(tasks.APP)
     assert 'auth_basic "testapp";\n' in auth
     sudo.assert_has_calls(
@@ -225,7 +225,7 @@ def test_upload_dump(mocked_deployment, mocker, capsys):
     # override the mock from mocked_deployment.
     # TODO: check if we really need the pathlib mock in mocked_deployment or
     # alter the mock there
-    mocker.patch('appconfig.tasks.deployment.pathlib.PurePosixPath',
+    mocker.patch('clldappconfig.tasks.deployment.pathlib.PurePosixPath',
                  mocker.Mock(side_effect=lambda x: pathlib.PurePosixPath(x)))
     tasks.upload_dump('production')
     out, _ = capsys.readouterr()
@@ -254,7 +254,7 @@ def mocked_pathlib(mocker):
         else:
             return mocker.Mock()
 
-    mocker.patch.multiple('appconfig.tasks.deployment.pathlib',
+    mocker.patch.multiple('clldappconfig.tasks.deployment.pathlib',
                           Path=mocker.Mock(return_value=MockedFile()),
                           PurePosixPath=ppp)
 
@@ -272,8 +272,8 @@ def test_upload_sqldump_url(mocked_deployment, mocked_pathlib, capsys):
 
 def test_upload_sqldump_bs(mocked_deployment, mocked_pathlib, mocker, capsys, monkeypatch):
     monkeypatch.setattr(tasks.APP, 'dbdump', 'ASDF1234')
-    mocker.patch.dict('appconfig.tasks.deployment.os.environ', {'CDSTAR_USER_BACKUP': 'u',
-                                                                'CDSTAR_PWD_BACKUP': 'p'})
+    mocker.patch.dict('clldappconfig.tasks.deployment.os.environ', {'CDSTAR_USER_BACKUP': 'u',
+                                                                    'CDSTAR_PWD_BACKUP': 'p'})
 
     deployment.upload_sqldump(tasks.APP, load=False)
     out, _ = capsys.readouterr()

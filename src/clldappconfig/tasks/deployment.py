@@ -17,7 +17,7 @@ from fabtools import (
     require, files, python, postgres, nginx, system, service, supervisor, user)
 from clldutils import misc
 
-import appconfig
+import clldappconfig as appconfig
 from .. import PKG_DIR
 from .. import helpers
 from .. import cdstar

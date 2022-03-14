@@ -3,7 +3,7 @@
 import pytest
 import argparse
 
-from appconfig import config
+from clldappconfig import config
 
 
 def test_config_validate():

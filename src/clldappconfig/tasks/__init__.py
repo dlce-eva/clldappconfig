@@ -1,4 +1,4 @@
-# tasks - top-level fabric tasks: from appconfig.tasks import *
+# tasks - top-level fabric tasks: from clldappconfig.tasks import *
 
 """
 fabric tasks
@@ -17,7 +17,7 @@ import pathlib
 import functools
 import fabric.api
 
-import appconfig
+import clldappconfig as appconfig
 from .. import helpers
 
 __all__ = ['init', 'task_app_from_environment']

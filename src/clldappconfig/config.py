@@ -164,5 +164,5 @@ class App(argparse.Namespace):
 
     @property
     def fabfile_dir(self):
-        import appconfig
+        import clldappconfig as appconfig
         return appconfig.APPS_DIR / self.name

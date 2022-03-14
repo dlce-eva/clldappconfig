@@ -2,8 +2,8 @@
 import pathlib
 import pytest
 
-import appconfig
-from appconfig.config import Config
+import clldappconfig as appconfig
+from clldappconfig.config import Config
 
 
 @pytest.fixture(scope='session')
@@ -25,4 +25,4 @@ def app(config, name='testapp'):
 
 @pytest.fixture
 def APP(mocker, app):
-    yield mocker.patch('appconfig.tasks.APP', app)
+    yield mocker.patch('clldappconfig.tasks.APP', app)

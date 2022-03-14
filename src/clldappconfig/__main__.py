@@ -5,13 +5,13 @@ import os
 from clldutils.clilib import register_subcommands, get_parser_and_subparsers, ParserError
 from clldutils.loglib import Logging
 
-import appconfig
-import appconfig.commands
+import clldappconfig as appconfig
+import clldappconfig.commands
 
 
 def main(args=None, catch_all=False, parsed_args=None, log=None):
     parser, subparsers = get_parser_and_subparsers('appconfig')
-    register_subcommands(subparsers, appconfig.commands)
+    register_subcommands(subparsers, clldappconfig.commands)
 
     parser.add_argument(
         '-c', '--config',

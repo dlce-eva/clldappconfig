@@ -1,5 +1,5 @@
 import pytest
-from appconfig import tasks
+from clldappconfig import tasks
 
 
 @pytest.fixture
@@ -7,7 +7,7 @@ def mocked_bitstream(mocker):
     m = mocker.Mock()
     m.configure_mock(id='db_dump_TEST',
                      _properties={'filesize': 42})
-    mocker.patch('appconfig.tasks.other.cdstar.RollingBlob.sorted_bitstreams',
+    mocker.patch('clldappconfig.tasks.other.cdstar.RollingBlob.sorted_bitstreams',
                  return_value=[m])
     return m
 
@@ -37,7 +37,7 @@ def test_remove_single_dump(APP, mocked_bitstream):
                           (None, True, 0)])
 def test_load_db(APP, mocker, tmp_path, capsys,
                  psql_exception, confirm_ret_val, local_ret_val):
-    mocker.patch('appconfig.tasks.other.subprocess.check_output',
+    mocker.patch('clldappconfig.tasks.other.subprocess.check_output',
                  return_value=b'testapp|user|UTF8|en_US.UTF-8|en_US.UTF-8|\n',
                  side_effect=psql_exception)
 
@@ -49,7 +49,7 @@ def test_load_db(APP, mocker, tmp_path, capsys,
     local_ret = mocker.Mock()
     local_ret.configure_mock(return_code=local_ret_val)
 
-    mocker.patch.multiple('appconfig.tasks.other',
+    mocker.patch.multiple('clldappconfig.tasks.other',
                           dump_db=mocker.Mock(return_value=tmp_path / db_dump),
                           confirm=confirm,
                           local=mocker.Mock(return_value=local_ret))
@@ -71,7 +71,7 @@ def test_load_db(APP, mocker, tmp_path, capsys,
 
 def test_create_downloads(APP, mocker):
     sudo = mocker.Mock()
-    mocker.patch.multiple('appconfig.tasks.other',
+    mocker.patch.multiple('clldappconfig.tasks.other',
                           sudo=sudo,
                           require=mocker.DEFAULT,
                           cd=mocker.DEFAULT)
@@ -99,7 +99,7 @@ def mocked_download_dir(tmp_path):
 
 
 def test_copy_downloads(APP, mocker, mocked_download_dir):
-    require = mocker.patch('appconfig.tasks.other.require')
+    require = mocker.patch('clldappconfig.tasks.other.require')
     tasks.copy_downloads('production', mocked_download_dir, '*.test')
     # two *.test files in mocked download dir should result in thow calls to
     # require.file
@@ -107,6 +107,6 @@ def test_copy_downloads(APP, mocker, mocked_download_dir):
 
 
 def test_copy_rdfdump(APP, mocker, mocked_download_dir):
-    require = mocker.patch('appconfig.tasks.other.require')
+    require = mocker.patch('clldappconfig.tasks.other.require')
     tasks.copy_rdfdump('production', mocked_download_dir)
     assert require.file.call_count == 1

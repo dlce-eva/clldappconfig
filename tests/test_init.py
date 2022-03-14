@@ -1,4 +1,4 @@
-import appconfig
+import clldappconfig as appconfig
 import pathlib
 import pytest
 

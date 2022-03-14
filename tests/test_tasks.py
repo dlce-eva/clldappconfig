@@ -1,10 +1,10 @@
 # test_tasks.py
 import pytest
-from appconfig import tasks
+from clldappconfig import tasks
 
 
 def test_init(mocker, testdir):
-    mocker.patch('appconfig.tasks.helpers.caller_dir',
+    mocker.patch('clldappconfig.tasks.helpers.caller_dir',
                  return_value=testdir / 'apps/testapp/')
 
     try:
@@ -15,7 +15,7 @@ def test_init(mocker, testdir):
 
 
 def test_init_environ(mocker, testdir):
-    mocker.patch('appconfig.tasks.os.environ', {'APPCONFIG_DIR': testdir / 'apps/'})
+    mocker.patch('clldappconfig.tasks.os.environ', {'APPCONFIG_DIR': testdir / 'apps/'})
 
     try:
         tasks.init('testapp')
@@ -49,7 +49,7 @@ def test_task_app_from_environment_no_host(testtasks):
 
 
 def test_tasks(mocker, APP):
-    mocker.patch('appconfig.tasks.fabric.api.execute', autospec=True)
+    mocker.patch('clldappconfig.tasks.fabric.api.execute', autospec=True)
 
     tasks.deploy('test')
     tasks.start('test')

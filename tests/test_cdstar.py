@@ -1,4 +1,4 @@
-from appconfig import cdstar
+from clldappconfig import cdstar
 import datetime
 import pathlib
 import pytest
@@ -7,7 +7,7 @@ import pytest
 @pytest.fixture(autouse=True)
 def mock_cdstar_config(mocker):
     mocker.patch.multiple(
-        'appconfig.cdstar', SERVICE_URL='http://example.org/', USER='u', PWD='pwd')
+        'clldappconfig.cdstar', SERVICE_URL='http://example.org/', USER='u', PWD='pwd')
 
 
 @pytest.fixture
@@ -22,7 +22,7 @@ def mock_rb(mocker):
         def latest(self, _):
             return self._sorted_bitstreams[0]
 
-    return mocker.patch('appconfig.cdstar.RollingBlob', RB)
+    return mocker.patch('clldappconfig.cdstar.RollingBlob', RB)
 
 
 def test_get_api():
@@ -51,7 +51,7 @@ def test_add_bitstream(mocker, testdir, mock_rb):
 
 def test_add_backup_user(mocker):
     obj = mocker.Mock()
-    mocker.patch('appconfig.cdstar.Cdstar.get_object', mocker.Mock(return_value=obj))
+    mocker.patch('clldappconfig.cdstar.Cdstar.get_object', mocker.Mock(return_value=obj))
     cdstar.add_backup_user('oid')
     obj.acl.update.assert_called()
 
@@ -77,7 +77,7 @@ def test_download_backups(mocker, tmpdir):
 
     obj = mocker.Mock()
     obj.configure_mock(bitstreams=[Bitstream()])
-    mocker.patch('appconfig.cdstar.Cdstar.get_object', mocker.Mock(return_value=obj))
+    mocker.patch('clldappconfig.cdstar.Cdstar.get_object', mocker.Mock(return_value=obj))
 
     p = pathlib.Path(tmpdir)
     cdstar.download_backups('oid', p)

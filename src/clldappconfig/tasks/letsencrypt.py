@@ -1,10 +1,10 @@
 from fabric.api import sudo
 from fabtools import require
 
-from appconfig import APPS
-from appconfig.config import App
+from clldappconfig import APPS
+from clldappconfig.config import App
 
-from appconfig import util
+from clldappconfig import util
 from fabtools.system import distrib_codename
 
 
