@@ -4,9 +4,7 @@ import pathlib
 
 from . import config
 
-__all__ = ['PKG_DIR', 'APPS_DIR', 'CONFIG_FILE', 'APPS', 'init']
-
-PKG_DIR = pathlib.Path(__file__).parent
+__all__ = ['APPS_DIR', 'CONFIG_FILE', 'APPS', 'init']
 
 APPS_DIR = None
 
