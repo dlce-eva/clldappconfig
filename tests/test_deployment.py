@@ -84,19 +84,15 @@ def test_template_context(mocked_ctx):
     assert mocked_ctx['app'].name == 'testapp'
 
 
-def test_sudo_upload_template(mocked_ctx, tmp_path, mocker, config):
+def test_sudo_upload_template(mocked_ctx, mocker, config):
     files = mocker.patch('clldappconfig.tasks.deployment.files')
-
-    # build TEMPLATE_DIR
-    open(tmp_path / 'template', 'a').close()
-    mocker.patch('clldappconfig.tasks.deployment.TEMPLATE_DIR', tmp_path)
 
     deployment.sudo_upload_template('template', '/dst', mocked_ctx, app=config['testapppublic'])
 
-    print(dir(mocked_deployment))
-    files.upload_template.called_with(template='template',
-                                      dest='/dst',
-                                      template_dir=tmp_path)
+    _, call_args, call_kwargs = files.mock_calls[0]
+    assert call_args[0] == 'template'
+    assert call_args[1] == '/dst'
+    assert call_kwargs['template_dir'].endswith('clldappconfig/templates')
 
 
 @pytest.fixture

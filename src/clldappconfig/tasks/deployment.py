@@ -9,6 +9,12 @@ import functools
 import random
 import pathlib
 import re
+import sys
+
+if sys.version_info.major >= 3 and sys.version_info.minor >= 9:  # pragma: nocover
+    from importlib import resources
+else:  # pragma: nocover
+    import importlib_resources as resources
 
 from fabric.api import env, settings, shell_env, prompt, sudo, run, cd, local
 from fabric.contrib.files import exists
@@ -18,7 +24,6 @@ from fabtools import (
 from clldutils import misc
 
 import clldappconfig as appconfig
-from .. import PKG_DIR
 from .. import helpers
 from .. import cdstar
 from .. import systemd
@@ -32,7 +37,6 @@ __all__ = [
 ]
 
 PLATFORM = platform.system().lower()
-TEMPLATE_DIR = PKG_DIR / 'templates'
 
 
 def template_context(app, workers=3):
@@ -63,19 +67,19 @@ def sudo_upload_template(template,
     if kwargs:
         context = (context or {}).copy()
         context.update(kwargs)
-    tdir = TEMPLATE_DIR
 
-    files.upload_template(
-        template,
-        dest,
-        context,
-        use_jinja=True,
-        template_dir=str(tdir),
-        use_sudo=True,
-        backup=False,
-        mode=mode,
-        chown=True,
-        user=user_own)
+    with resources.as_file(resources.files('clldappconfig.templates')) as tdir:
+        files.upload_template(
+            template,
+            dest,
+            context,
+            use_jinja=True,
+            template_dir=str(tdir),
+            use_sudo=True,
+            backup=False,
+            mode=mode,
+            chown=True,
+            user=user_own)
 
 
 def pip_freeze(app, packages=None):
@@ -308,11 +312,14 @@ def require_postgres(app, drop=False):
             # work around `sudo_upload_template` throwing a 'size mismatch in put'...
             if files.is_file(rules_file):
                 files.remove(rules_file, use_sudo=True)
-            require.file(
-                rules_file,
-                source=TEMPLATE_DIR / 'unaccent.rules',
-                mode='644',
-                use_sudo=True)
+            with resources.as_file(
+                    resources.files('clldappconfig.templates') / 'unaccent.rules'
+            ) as rules_template:
+                require.file(
+                    rules_file,
+                    source=rules_template,
+                    mode='644',
+                    use_sudo=True)
 
 
 def require_config(filepath, app, ctx):
