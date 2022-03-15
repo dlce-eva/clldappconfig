@@ -11,7 +11,7 @@ import pathlib
 import re
 import sys
 
-if sys.version_info.major >= 3 and sys.version_info.minor >= 9:  # pragma: nocover
+if sys.version_info >= (3, 9):  # pragma: nocover
     from importlib import resources
 else:  # pragma: nocover
     import importlib_resources as resources
