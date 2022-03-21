@@ -9,7 +9,7 @@ tox -r
 
 - Create a release tag:
 ```shell
-git tag -a v<VERSION> -m "<VERSION> release"
+gh release create
 ```
 
 * Release to PyPI:
