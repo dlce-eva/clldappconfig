@@ -24,10 +24,3 @@ twine upload dist/*
 git push origin
 git push --tags origin
 ```
-* Increment the version number and append `.dev0` to start the new development cycle in `setup.cfg`
-
-* Commit/push the version change:
-```shell
-git commit -a -m "bump version for development"
-git push origin
-```
