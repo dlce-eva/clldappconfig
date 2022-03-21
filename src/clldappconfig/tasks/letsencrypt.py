@@ -1,7 +1,7 @@
 from fabric.api import sudo
 from fabtools import require
 
-from clldappconfig import APPS
+import clldappconfig
 from clldappconfig.config import App
 
 from clldappconfig import util
@@ -26,7 +26,7 @@ def require_cert(domain):
         domains = domain
     # If an App instance is passed, we lookup its domain attribute:
     sudo('certbot --nginx -n -d {0} certonly --agree-tos --expand --email {1}'.format(
-        domains, APPS.defaults['error_email']))
+        domains, clldappconfig.APPS.defaults['error_email']))
 
 
 def delete(cert):  # pragma: nocover
