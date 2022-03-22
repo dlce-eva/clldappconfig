@@ -26,7 +26,6 @@ from clldutils import misc
 import clldappconfig as appconfig
 from .. import helpers
 from .. import cdstar
-from .. import systemd
 from . import letsencrypt
 
 from . import task_app_from_environment
@@ -180,7 +179,6 @@ def uninstall(app):  # pragma: no cover
 
     supervisor.update_config()
     service.reload('nginx')
-    systemd.uninstall(app, pathlib.Path(os.getcwd()) / 'systemd')
 
 
 @task_app_from_environment
@@ -266,8 +264,6 @@ def deploy(app, with_alembic=False):
 
     start.execute_inner(app)
     check(app)
-    if env.environment == 'production':
-        systemd.enable(app, pathlib.Path(os.getcwd()) / 'systemd')
 
 
 def require_bower(app, d=None):
