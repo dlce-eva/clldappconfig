@@ -1,6 +1,9 @@
 # https-pypi.org-project-clldappconfig-
 Python package providing management functionality for clld apps
 
+[![Tests](https://github.com/dlce-eva/clldappconfig/actions/workflows/tests.yml/badge.svg)](https://github.com/dlce-eva/clldappconfig/actions/workflows/tests.yml)
+[![PyPI](https://img.shields.io/pypi/v/clldappconfig.svg)](https://pypi.org/project/clldappconfig)
+
 ## usage
 
 ```
