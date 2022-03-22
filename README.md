@@ -18,7 +18,7 @@ appconfig --help
 
 The `appconfig` command needs a configuration directory containing the global
 configuration file (`apps.ini`) and the config scripts all managed apps.
-I.e. the config directory (here `apps/`) should have the following structure
+I.e. the config directory (here `apps/`) should have the following structure:
 
 ```
 apps
@@ -50,7 +50,7 @@ env APPCONFIG_DIR=./path/to/appconfig/apps/ appconfig ls
 ```
 
 
-# using fabfiles
+## using fabfiles
 
 For every app should provide a subdirectory of the config directory, which
 contains a `fabfile.py` with the following minimal structure:
