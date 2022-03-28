@@ -17,7 +17,7 @@ import pathlib
 
 from . import helpers
 
-__all__ = ['Config']
+__all__ = ["Config"]
 
 
 class Config(dict):
@@ -26,7 +26,7 @@ class Config(dict):
     @property
     def defaults(self):
         if self.cfg:
-            return self.cfg['DEFAULT']
+            return self.cfg["DEFAULT"]
 
     @property
     def production_hosts(self):
@@ -37,10 +37,13 @@ class Config(dict):
         if value_cls is None:
             value_cls = App
         parser = ConfigParser.from_file(filepath)
-        items = {s: value_cls(**parser[s]) for s in parser.sections()
-                if not s.startswith('_')}
+        items = {
+            s: value_cls(**parser[s])
+            for s in parser.sections()
+            if not s.startswith("_")
+        }
         inst = cls(items)
-        inst.hostnames = [h for _, h in parser.raw_items('_hosts')]
+        inst.hostnames = [h for _, h in parser.raw_items("_hosts")]
         if validate:
             inst.validate()
         inst.cfg = parser
@@ -49,26 +52,26 @@ class Config(dict):
     def validate(self):
         mismatch = [(name, app.name) for name, app in self.items() if name != app.name]
         if mismatch:
-            raise ValueError('section/name mismatch: %r' % mismatch)
+            raise ValueError("section/name mismatch: %r" % mismatch)
         duplicates = helpers.duplicates([app.port for app in self.values()])
         if duplicates:
-            raise ValueError('duplicate port(s): %r' % duplicates)
+            raise ValueError("duplicate port(s): %r" % duplicates)
         for app in self.values():
             if not app.fabfile_dir.exists():  # pragma: no cover
-                warnings.warn('missing fabfile dir: %s' % app.name)
+                warnings.warn("missing fabfile dir: %s" % app.name)
 
 
 class ConfigParser(configparser.ConfigParser):
 
     _init_defaults = {
-        'delimiters': ('=',),
-        'comment_prefixes': ('#',),
-        'inline_comment_prefixes': ('#',),
-        'interpolation': configparser.ExtendedInterpolation(),
+        "delimiters": ("=",),
+        "comment_prefixes": ("#",),
+        "inline_comment_prefixes": ("#",),
+        "interpolation": configparser.ExtendedInterpolation(),
     }
 
     @classmethod
-    def from_file(cls, filepath, encoding='utf-8-sig', **kwargs):
+    def from_file(cls, filepath, encoding="utf-8-sig", **kwargs):
         self = cls(**kwargs)
         if not isinstance(filepath, pathlib.Path):  # pragma: no cover
             filepath = pathlib.Path(filepath)
@@ -96,45 +99,75 @@ def getwords(s):
 
 class App(argparse.Namespace):
 
-    _fields = dict.fromkeys([
-        'name', 'test', 'production', 'editors', 'contact',
-        'domain', 'error_email', 'stack',
-        'sqlalchemy_url', 'app_pkg', 'dbdump',
-        'github_org',
-        'github_repos',
-    ])
+    _fields = dict.fromkeys(
+        [
+            "name",
+            "test",
+            "production",
+            "editors",
+            "contact",
+            "domain",
+            "error_email",
+            "stack",
+            "sqlalchemy_url",
+            "app_pkg",
+            "dbdump",
+            "github_org",
+            "github_repos",
+        ]
+    )
 
-    _fields.update({
-        'port': int,
-        'public': getboolean,
-        'with_www_subdomain': getboolean,
-        'workers': int,
-        'timeout': int,
-        'deploy_duration': int,
-        'require_deb_xenial': getwords,
-        'require_deb_bionic': getwords,
-        'require_deb_focal': getwords,
-        'require_deb': getwords,
-        'require_pip': getwords,
-        'pg_unaccent': getboolean,
-    })
+    _fields.update(
+        {
+            "port": int,
+            "public": getboolean,
+            "with_www_subdomain": getboolean,
+            "workers": int,
+            "timeout": int,
+            "deploy_duration": int,
+            "require_deb_xenial": getwords,
+            "require_deb_bionic": getwords,
+            "require_deb_focal": getwords,
+            "require_deb": getwords,
+            "require_pip": getwords,
+            "pg_unaccent": getboolean,
+        }
+    )
 
-    _fields.update(dict.fromkeys([
-        'home_dir', 'www_dir',
-        'config',
-        'gunicorn_pid',
-        'venv_dir', 'venv_bin', 'src_dir', 'static_dir', 'download_dir',
-        'alembic', 'gunicorn',
-        'log_dir', 'access_log', 'error_log',
-        'logrotate',
-        'supervisor',
-        'nginx_default_site', 'nginx_site', 'nginx_location', 'nginx_htpasswd',
-        'varnish_site',
-    ], pathlib.PurePosixPath))
+    _fields.update(
+        dict.fromkeys(
+            [
+                "home_dir",
+                "www_dir",
+                "config",
+                "gunicorn_pid",
+                "venv_dir",
+                "venv_bin",
+                "src_dir",
+                "static_dir",
+                "download_dir",
+                "alembic",
+                "gunicorn",
+                "log_dir",
+                "access_log",
+                "error_log",
+                "logrotate",
+                "supervisor",
+                "nginx_default_site",
+                "nginx_site",
+                "nginx_location",
+                "nginx_htpasswd",
+                "varnish_site",
+            ],
+            pathlib.PurePosixPath,
+        )
+    )
 
-    _fields.update({
-        'extra': lambda s: eval(s or '{}'),
-    })
+    _fields.update(
+        {
+            "extra": lambda s: eval(s or "{}"),
+        }
+    )
 
     def __init__(self, **kwargs):
         kw = self._fields.copy()
@@ -142,10 +175,10 @@ class App(argparse.Namespace):
             try:
                 value = kwargs.pop(k)
             except KeyError:
-                raise ValueError('missing attribute %r' % k)
+                raise ValueError("missing attribute %r" % k)
             kw[k] = f(value) if f is not None else value
         if kwargs:
-            raise ValueError('unknown attribute(s) %r' % kwargs)
+            raise ValueError("unknown attribute(s) %r" % kwargs)
         super(App, self).__init__(**kw)
 
     def replace(self, **kwargs):
@@ -157,7 +190,7 @@ class App(argparse.Namespace):
                 value = copy.copy(old[k])
             new[k] = value
         if kwargs:
-            raise ValueError('unknown attribute(s) %r' % kwargs)
+            raise ValueError("unknown attribute(s) %r" % kwargs)
         inst = object.__new__(self.__class__)
         inst.__dict__ = new
         return inst
@@ -165,4 +198,5 @@ class App(argparse.Namespace):
     @property
     def fabfile_dir(self):
         import clldappconfig as appconfig
+
         return appconfig.APPS_DIR / self.name

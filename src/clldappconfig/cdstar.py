@@ -4,9 +4,9 @@ from pycdstar.api import Cdstar
 from cdstarcat.resources import RollingBlob
 from clldutils.misc import format_size
 
-SERVICE_URL = os.environ.get('CDSTAR_URL')
-USER = os.environ.get('CDSTAR_USER')
-PWD = os.environ.get('CDSTAR_PWD')
+SERVICE_URL = os.environ.get("CDSTAR_URL")
+USER = os.environ.get("CDSTAR_USER")
+PWD = os.environ.get("CDSTAR_PWD")
 
 
 class NamedBitstream(object):
@@ -20,7 +20,7 @@ class NamedBitstream(object):
 
     @property
     def size(self):
-        return self.bitstream._properties['filesize']
+        return self.bitstream._properties["filesize"]
 
     @property
     def size_h(self):
@@ -28,7 +28,7 @@ class NamedBitstream(object):
 
     @property
     def url(self):
-        return '{0}/bitstreams/{1}/{2}'.format(SERVICE_URL, self.oid, self.name)
+        return "{0}/bitstreams/{1}/{2}".format(SERVICE_URL, self.oid, self.name)
 
     @property
     def name(self):
@@ -41,7 +41,7 @@ def get_api():
 
 def add_backup_user(oid):
     obj = get_api().get_object(oid)
-    obj.acl.update(read=['backup', 'clld'], write=['backup', 'clld'])
+    obj.acl.update(read=["backup", "clld"], write=["backup", "clld"])
 
 
 def get_bitstreams(oid):
@@ -68,5 +68,5 @@ def download_backups(oid, d):
     for i, bs in enumerate(reversed(obj.bitstreams)):
         if i % 5 == 0:
             if not d.joinpath(bs.id).exists():
-                with d.joinpath(bs.id).open('wb') as fp:
+                with d.joinpath(bs.id).open("wb") as fp:
                     fp.write(bs.read().read())

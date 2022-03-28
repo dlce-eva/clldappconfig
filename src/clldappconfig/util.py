@@ -42,6 +42,7 @@ def ppa(name, auto_accept=True, keyserver=None, lsb_codename=None):
     if not is_file(source):
         package("software-properties-common")
         run_as_root(
-            "add-apt-repository %(auto_accept)s %(keyserver)s %(name)s" % locals(), pty=False
+            "add-apt-repository %(auto_accept)s %(keyserver)s %(name)s" % locals(),
+            pty=False,
         )
         update_index()

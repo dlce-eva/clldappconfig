@@ -2,15 +2,17 @@ from clldappconfig import helpers
 
 
 def test_getpwd(mocker):
-    mocker.patch('clldappconfig.helpers.getpass',
-                 mocker.Mock(getpass=mocker.Mock(return_value='abc')))
-    assert helpers.getpwd('x') == 'abc'
-    assert helpers.getpwd('x', accept_empty=True) == 'abc'
+    mocker.patch(
+        "clldappconfig.helpers.getpass",
+        mocker.Mock(getpass=mocker.Mock(return_value="abc")),
+    )
+    assert helpers.getpwd("x") == "abc"
+    assert helpers.getpwd("x", accept_empty=True) == "abc"
 
 
 def test_caller_dirname():
     path = helpers.caller_dirname(0)
-    assert path == 'tests'
+    assert path == "tests"
 
 
 def test_duplicates():

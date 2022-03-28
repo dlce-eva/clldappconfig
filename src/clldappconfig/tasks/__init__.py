@@ -20,7 +20,7 @@ import fabric.api
 import clldappconfig as appconfig
 from .. import helpers
 
-__all__ = ['init', 'task_app_from_environment']
+__all__ = ["init", "task_app_from_environment"]
 
 APP = None
 
@@ -58,24 +58,30 @@ def task_app_from_environment(func_or_environment):
         func, _environment = None, func_or_environment
 
     if func is not None:
+
         @functools.wraps(func)
         def wrapper(environment, *args, **kwargs):
-            assert environment in ('production', 'test', 'staging')
+            assert environment in ("production", "test", "staging")
             if not fabric.api.env.hosts:
-                if environment == 'staging':
-                    raise ValueError('staging tasks require an explicit host via -H')
+                if environment == "staging":
+                    raise ValueError("staging tasks require an explicit host via -H")
                 # allow overriding the hosts by using fab's -H option
                 fabric.api.env.hosts = [getattr(APP, environment)]
             fabric.api.env.environment = environment
             return fabric.api.execute(func, APP, *args, **kwargs)
+
         wrapper.execute_inner = func
         return fabric.api.task(wrapper)
     else:
+
         def decorator(_func):
             _wrapper = task_app_from_environment(_func).wrapped
-            wrapper = functools.wraps(_wrapper)(functools.partial(_wrapper, _environment))
+            wrapper = functools.wraps(_wrapper)(
+                functools.partial(_wrapper, _environment)
+            )
             wrapper.execute_inner = _wrapper.execute_inner
             return fabric.api.task(wrapper)
+
         return decorator
 
 

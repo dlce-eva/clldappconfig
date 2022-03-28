@@ -7,13 +7,13 @@ import getpass
 
 import pytz
 
-__all__ = ['caller_dirname', 'duplicates', 'strfnow']
+__all__ = ["caller_dirname", "duplicates", "strfnow"]
 
 
 def getpwd(user, accept_empty=False):
     pwd = None
     while not pwd:
-        pwd = getpass.getpass(prompt='HTTP Basic Auth password for user %s: ' % user)
+        pwd = getpass.getpass(prompt="HTTP Basic Auth password for user %s: " % user)
         if accept_empty:
             return pwd or None
     return pwd
@@ -53,7 +53,7 @@ def duplicates(iterable):
     return [i for i in iterable if i in seen or seen.add(i)]
 
 
-def strfnow(add_hours=0, timezone='Europe/Berlin', format_='%Y-%m-%d %H:%M %Z%z'):
+def strfnow(add_hours=0, timezone="Europe/Berlin", format_="%Y-%m-%d %H:%M %Z%z"):
     """
 
     >>> assert strfnow() < strfnow(add_hours=2)
