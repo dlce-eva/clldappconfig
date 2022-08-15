@@ -122,7 +122,10 @@ def load_db(app, local_name=None):
         return
 
     local("createdb {0}".format(local_name))
-    res = local("gunzip -c %s | psql -1 -d %s" % (local_dump, local_name), capture=True)
+    res = local(
+        "gunzip -c %s | psql -1 -d %s -v ON_ERROR_STOP=1" % (local_dump, local_name),
+        capture=True,
+    )
     if res.return_code != 0:
         print(res.stdout)
         print("SQL dump downloaded to {0}".format(local_dump))
