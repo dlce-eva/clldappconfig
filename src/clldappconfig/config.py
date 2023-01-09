@@ -108,7 +108,6 @@ class App(argparse.Namespace):
             "contact",
             "domain",
             "error_email",
-            "stack",
             "sqlalchemy_url",
             "app_pkg",
             "dbdump",

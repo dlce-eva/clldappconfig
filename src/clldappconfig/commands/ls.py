@@ -20,7 +20,7 @@ def register(parser):
 
 def run(args):
     cols = {
-        "default": ["id", "url", "server", "port", "stack", "public"],
+        "default": ["id", "url", "server", "port", "public"],
         "administrative": ["id", "url", "editors", "contact"],
     }["administrative" if args.administrative else "default"]
     table = []
@@ -31,7 +31,6 @@ def run(args):
                 url="https://{0}".format(a.domain),
                 server=a.production,
                 port="{0}".format(a.port),
-                stack=a.stack,
                 editors=a.editors,
                 contact=a.contact,
                 public="{0}".format(a.public),
@@ -44,7 +43,6 @@ def run(args):
                     url="http://{0}/{1}".format(a.test, a.name),
                     server=a.test,
                     port="{0}".format(a.port),
-                    stack=a.stack,
                     editors="",
                     contact="",
                     public="{0}".format(False),

@@ -54,15 +54,13 @@ PLATFORM = platform.system().lower()
 
 
 def template_context(app, workers=3):
-    ctx = {
+    return {
         "PRODUCTION_HOST": env.host in appconfig.APPS.production_hosts,
         "app": app,
         "env": env,
         "workers": workers,
         "auth": "",
     }
-
-    return ctx
 
 
 def sudo_upload_template(
@@ -245,23 +243,16 @@ def deploy(app):
 
     ctx = template_context(app, workers=workers)
 
-    #
     # Create a virtualenv for the app and install the app package in development
     # mode, i.e. with repository working copy in /usr/venvs/<APP>/src
-    #
     require_venv(
-        app.venv_dir,
-        require_packages=[app.app_pkg] + app.require_pip,
-        assets_name=app.name if app.stack == "clld" else None,
-    )
-
+        app.venv_dir, require_packages=[app.app_pkg] + app.require_pip, assets_name=app.name)
     require_nginx(ctx)
     require_postgres(app)
 
     require_config(app.config, app, ctx)
 
     # if gunicorn runs, make it gracefully reload the app by sending HUP
-    # TODO: consider 'supervisorctl signal HUP $name' instead (xenial+)
     sudo(
         "( [ -f {0} ] && kill -0 $(cat {0}) 2> /dev/null "
         "&& kill -HUP $(cat {0}) ) || echo no reload ".format(app.gunicorn_pid)
@@ -300,16 +291,6 @@ def require_config(filepath, app, ctx):
     files_dir = app.www_dir / "files"
     files = files_dir if exists(str(files_dir)) else None
     sudo_upload_template("config.ini", dest=str(filepath), context=ctx, files=files)
-
-    if app.stack == "django" and confirm("Recreate secret key?", default=True):
-        key_chars = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"
-        secret_key = "".join([random.choice(key_chars) for i in range(50)])
-        require.file(
-            str(filepath.parent / "secret_key"),
-            contents=secret_key,
-            use_sudo=True,
-            mode="644",
-        )
 
 
 def require_venv(directory, require_packages=None, assets_name=None, requirements=None):
@@ -352,7 +333,7 @@ def require_nginx(ctx):
         sudo_upload_template,
         "nginx-app.conf",
         context=ctx,
-        clld_dir=get_clld_dir(app.venv_dir) if app.stack == "clld" else "",
+        clld_dir=get_clld_dir(app.venv_dir),
         auth=auth,
     )
 

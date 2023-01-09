@@ -205,7 +205,6 @@ def test_require_misc(mocked_deployment, mocker):
     # kind of syntax check and to get 100% coverage.
     #
     # Maybe consider using '# pragma: no cover' instead.
-    mocker.patch("clldappconfig.tasks.APP.stack", "django")
     env = mocker.patch("clldappconfig.tasks.deployment.env")
     env.configure_mock(environment="production")
     deployment.require_postgres(tasks.APP, drop=True)
