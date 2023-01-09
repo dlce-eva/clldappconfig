@@ -67,7 +67,7 @@ def mocked_deployment(mocker):
         system=mocker.Mock(
             **{
                 "distrib_id.return_value": "Ubuntu",
-                "distrib_codename.return_value": "xenial",
+                "distrib_codename.return_value": "focal",
             }
         ),
         time=mocker.Mock(),

@@ -4,12 +4,11 @@ import pathlib
 
 from . import config
 
-__all__ = ["APPS_DIR", "CONFIG_FILE", "APPS", "init"]
+__all__ = ["SUPPORTED_LSB_RELEASES", "APPS_DIR", "CONFIG_FILE", "APPS", "init"]
 
+SUPPORTED_LSB_RELEASES = ['focal', 'jammy']
 APPS_DIR = None
-
 CONFIG_FILE = None
-
 APPS = None
 
 

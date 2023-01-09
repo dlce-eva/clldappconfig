@@ -125,9 +125,8 @@ class App(argparse.Namespace):
             "workers": int,
             "timeout": int,
             "deploy_duration": int,
-            "require_deb_xenial": getwords,
-            "require_deb_bionic": getwords,
             "require_deb_focal": getwords,
+            "require_deb_jammy": getwords,
             "require_deb": getwords,
             "require_pip": getwords,
             "pg_unaccent": getboolean,
@@ -157,7 +156,6 @@ class App(argparse.Namespace):
                 "nginx_site",
                 "nginx_location",
                 "nginx_htpasswd",
-                "varnish_site",
             ],
             pathlib.PurePosixPath,
         )

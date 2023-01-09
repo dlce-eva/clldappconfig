@@ -204,7 +204,7 @@ def deploy(app, with_alembic=False):
     """deploy the app"""
     assert system.distrib_id() == "Ubuntu"
     lsb_codename = system.distrib_codename()
-    if lsb_codename not in ["xenial", "bionic", "focal"]:
+    if lsb_codename not in appconfig.SUPPORTED_LSB_RELEASES:
         raise ValueError("unsupported platform: %s" % lsb_codename)
 
     # See whether the local appconfig clone is up-to-date with the remote master:
@@ -331,24 +331,10 @@ def require_postgres(app, drop=False):
     if app.pg_unaccent:
         sql = "CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;"
         sudo('psql -c "%s" -d %s' % (sql, app.name), user="postgres")
-        # focal already supports combining diacritics
-        if system.distrib_codename() in ("xenial", "bionic"):
-            rules_file = (
-                "/usr/share/postgresql/%s/tsearch_data/unaccent.rules" % pg_version
-            )
-            # work around `sudo_upload_template` throwing a 'size mismatch in put'...
-            if files.is_file(rules_file):
-                files.remove(rules_file, use_sudo=True)
-            with resources.as_file(
-                resources.files("clldappconfig.templates") / "unaccent.rules"
-            ) as rules_template:
-                require.file(
-                    rules_file, source=rules_template, mode="644", use_sudo=True
-                )
 
 
 def require_config(filepath, app, ctx):
-    # We only set add a setting clld.files, if the corresponding directory exists;
+    # We only add a setting clld.files, if the corresponding directory exists;
     # otherwise the app would throw an error on startup.
     files_dir = app.www_dir / "files"
     files = files_dir if exists(str(files_dir)) else None
