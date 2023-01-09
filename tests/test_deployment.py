@@ -187,15 +187,13 @@ def test_deploy_public(mocker, config, mocked_deployment):
 
 
 @pytest.mark.parametrize(
-    "environment, with_alembic",
-    [("production", True), ("production", False), ("test", True), ("test", False)],
+    "environment",
+    ["production", "test"],
 )
-def test_deploy(
-    mocker, config, mocked_deployment, mocked_appsdir, environment, with_alembic
-):
+def test_deploy(mocker, config, mocked_deployment, mocked_appsdir, environment):
     mocker.patch("clldappconfig.tasks.deployment.misc", mocker.Mock())
 
-    tasks.deploy(environment, with_alembic=with_alembic)
+    tasks.deploy(environment)
 
     assert mocked_deployment.getpwd.call_count == 1
 
@@ -210,8 +208,6 @@ def test_require_misc(mocked_deployment, mocker):
     mocker.patch("clldappconfig.tasks.APP.stack", "django")
     env = mocker.patch("clldappconfig.tasks.deployment.env")
     env.configure_mock(environment="production")
-    deployment.require_bower(tasks.APP)
-    deployment.require_grunt(tasks.APP)
     deployment.require_postgres(tasks.APP, drop=True)
     deployment.require_config(
         tasks.APP.config, tasks.APP, deployment.template_context(tasks.APP)
