@@ -6,7 +6,6 @@ import time
 import platform
 import tempfile
 import functools
-import random
 import pathlib
 import re
 import sys
@@ -19,7 +18,7 @@ else:  # pragma: nocover
 from fabric.api import env, settings, shell_env, prompt, sudo, run, cd, local
 from fabric.contrib.files import exists
 from fabric.contrib.console import confirm
-from fabtools import (
+from clldappconfig.fabtools import (
     require,
     files,
     python,
@@ -54,15 +53,13 @@ PLATFORM = platform.system().lower()
 
 
 def template_context(app, workers=3):
-    ctx = {
+    return {
         "PRODUCTION_HOST": env.host in appconfig.APPS.production_hosts,
         "app": app,
         "env": env,
         "workers": workers,
         "auth": "",
     }
-
-    return ctx
 
 
 def sudo_upload_template(
@@ -200,11 +197,11 @@ def uninstall(app):  # pragma: no cover
 
 
 @task_app_from_environment
-def deploy(app, with_alembic=False):
+def deploy(app):
     """deploy the app"""
-    assert system.distrib_id() == "Ubuntu"
+    assert system.distrib_id() == "Ubuntu", system.distrib_id()
     lsb_codename = system.distrib_codename()
-    if lsb_codename not in ["xenial", "bionic", "focal"]:
+    if lsb_codename not in appconfig.SUPPORTED_LSB_RELEASES:
         raise ValueError("unsupported platform: %s" % lsb_codename)
 
     # See whether the local appconfig clone is up-to-date with the remote master:
@@ -247,44 +244,24 @@ def deploy(app, with_alembic=False):
 
     ctx = template_context(app, workers=workers)
 
-    #
     # Create a virtualenv for the app and install the app package in development
     # mode, i.e. with repository working copy in /usr/venvs/<APP>/src
-    #
     require_venv(
-        app.venv_dir,
-        require_packages=[app.app_pkg] + app.require_pip,
-        assets_name=app.name if app.stack == "clld" else None,
-    )
-
-    #
-    # If some of the static assets are managed via bower, update them.
-    #
-    require_bower(app)
-    require_grunt(app)
-
+        app.venv_dir, require_packages=[app.app_pkg] + app.require_pip, assets_name=app.name)
     require_nginx(ctx)
     require_postgres(app)
 
     require_config(app.config, app, ctx)
 
     # if gunicorn runs, make it gracefully reload the app by sending HUP
-    # TODO: consider 'supervisorctl signal HUP $name' instead (xenial+)
     sudo(
         "( [ -f {0} ] && kill -0 $(cat {0}) 2> /dev/null "
         "&& kill -HUP $(cat {0}) ) || echo no reload ".format(app.gunicorn_pid)
     )
 
-    if not with_alembic and confirm("Recreate database?", default=False):
+    if confirm("Recreate database?", default=False):
         stop.execute_inner(app)
         upload_sqldump(app)
-    elif exists(str(app.src_dir / "alembic.ini")) and confirm(
-        "Upgrade database?", default=False
-    ):
-        # Note: stopping the app is not strictly necessary, because
-        #       the alembic revisions run in separate transactions!
-        stop.execute_inner(app, maintenance_hours=app.deploy_duration)
-        alembic_upgrade_head(app, ctx)
     else:
         stop.execute_inner(app)  # pragma: no cover
 
@@ -292,25 +269,6 @@ def deploy(app, with_alembic=False):
 
     start.execute_inner(app)
     check(app)
-
-
-def require_bower(app, d=None):
-    d = d or app.static_dir
-    if exists(str(d / "bower.json")):
-        require.deb.packages(["npm", "nodejs"])
-        sudo("npm install -g bower@1.8.8")
-        with cd(str(d)):
-            sudo("bower --allow-root install")
-
-
-def require_grunt(app, d=None):
-    d = d or app.static_dir
-    if exists(str(d / "Gruntfile.js")):
-        require.deb.packages(["npm", "nodejs"])
-        sudo("npm install -g grunt-cli@1.3.2")
-        with cd(str(d)):
-            sudo("npm install")
-            sudo("grunt")
 
 
 def require_postgres(app, drop=False):
@@ -323,46 +281,17 @@ def require_postgres(app, drop=False):
         require.postgres.user(app.name, password=app.name, encrypted_password=True)
         require.postgres.database(app.name, owner=app.name)
 
-    (pg_dir,) = run(
-        "find /usr/lib/postgresql/ -mindepth 1 -maxdepth 1 -type d"
-    ).splitlines()
-    pg_version = pathlib.PurePosixPath(pg_dir).name
-
     if app.pg_unaccent:
         sql = "CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;"
         sudo('psql -c "%s" -d %s' % (sql, app.name), user="postgres")
-        # focal already supports combining diacritics
-        if system.distrib_codename() in ("xenial", "bionic"):
-            rules_file = (
-                "/usr/share/postgresql/%s/tsearch_data/unaccent.rules" % pg_version
-            )
-            # work around `sudo_upload_template` throwing a 'size mismatch in put'...
-            if files.is_file(rules_file):
-                files.remove(rules_file, use_sudo=True)
-            with resources.as_file(
-                resources.files("clldappconfig.templates") / "unaccent.rules"
-            ) as rules_template:
-                require.file(
-                    rules_file, source=rules_template, mode="644", use_sudo=True
-                )
 
 
 def require_config(filepath, app, ctx):
-    # We only set add a setting clld.files, if the corresponding directory exists;
+    # We only add a setting clld.files, if the corresponding directory exists;
     # otherwise the app would throw an error on startup.
     files_dir = app.www_dir / "files"
     files = files_dir if exists(str(files_dir)) else None
     sudo_upload_template("config.ini", dest=str(filepath), context=ctx, files=files)
-
-    if app.stack == "django" and confirm("Recreate secret key?", default=True):
-        key_chars = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"
-        secret_key = "".join([random.choice(key_chars) for i in range(50)])
-        require.file(
-            str(filepath.parent / "secret_key"),
-            contents=secret_key,
-            use_sudo=True,
-            mode="644",
-        )
 
 
 def require_venv(directory, require_packages=None, assets_name=None, requirements=None):
@@ -405,7 +334,7 @@ def require_nginx(ctx):
         sudo_upload_template,
         "nginx-app.conf",
         context=ctx,
-        clld_dir=get_clld_dir(app.venv_dir) if app.stack == "clld" else "",
+        clld_dir=get_clld_dir(app.venv_dir),
         auth=auth,
     )
 
@@ -505,12 +434,3 @@ def upload_sqldump(app, load=True):
 def download_backups(app, d):  # pragma: no cover
     """download db dumps from cdstar."""
     cdstar.download_backups(app.dbdump, pathlib.Path(d))
-
-
-def alembic_upgrade_head(app, ctx):  # only tested implicitly
-    with python.virtualenv(str(app.venv_dir)), cd(str(app.src_dir)):
-        sudo("%s -n production upgrade head" % (app.alembic), user=app.name)
-
-    if confirm("Vacuum database?", default=False):
-        flag = "-f " if confirm("VACUUM FULL?", default=False) else ""
-        sudo("vacuumdb %s-z -d %s" % (flag, app.name), user="postgres")

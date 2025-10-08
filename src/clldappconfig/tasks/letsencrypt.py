@@ -4,17 +4,9 @@ from fabtools import require
 import clldappconfig
 from clldappconfig.config import App
 
-from clldappconfig import util
-from fabtools.system import distrib_codename
-
 
 def require_certbot():  # pragma: nocover
-    if distrib_codename() == "focal":
-        require.deb.package("certbot python3-certbot-nginx")
-    else:
-        require.deb.package("software-properties-common")
-        util.ppa("ppa:certbot/certbot", lsb_codename=distrib_codename())
-        require.deb.package("python-certbot-nginx")
+    require.deb.package("certbot python3-certbot-nginx")
 
 
 def require_cert(domain):
