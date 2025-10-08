@@ -6,7 +6,7 @@ from . import config
 
 __all__ = ["SUPPORTED_LSB_RELEASES", "APPS_DIR", "CONFIG_FILE", "APPS", "init"]
 
-SUPPORTED_LSB_RELEASES = ['focal', 'jammy']
+SUPPORTED_LSB_RELEASES = ['focal', 'jammy', 'noble']
 APPS_DIR = None
 CONFIG_FILE = None
 APPS = None

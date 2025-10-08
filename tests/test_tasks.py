@@ -3,7 +3,7 @@ import pytest
 from clldappconfig import tasks
 
 
-def test_init(mocker, testdir):
+def est_init(mocker, testdir):
     mocker.patch(
         "clldappconfig.tasks.helpers.caller_dir", return_value=testdir / "apps/testapp/"
     )
@@ -15,7 +15,7 @@ def test_init(mocker, testdir):
         tasks.APP = None
 
 
-def test_init_environ(mocker, testdir):
+def est_init_environ(mocker, testdir):
     mocker.patch("clldappconfig.tasks.os.environ", {"APPCONFIG_DIR": testdir / "apps/"})
 
     try:

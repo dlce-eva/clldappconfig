@@ -6,7 +6,6 @@ import time
 import platform
 import tempfile
 import functools
-import random
 import pathlib
 import re
 import sys
@@ -19,7 +18,7 @@ else:  # pragma: nocover
 from fabric.api import env, settings, shell_env, prompt, sudo, run, cd, local
 from fabric.contrib.files import exists
 from fabric.contrib.console import confirm
-from fabtools import (
+from clldappconfig.fabtools import (
     require,
     files,
     python,
@@ -200,7 +199,7 @@ def uninstall(app):  # pragma: no cover
 @task_app_from_environment
 def deploy(app):
     """deploy the app"""
-    assert system.distrib_id() == "Ubuntu"
+    assert system.distrib_id() == "Ubuntu", system.distrib_id()
     lsb_codename = system.distrib_codename()
     if lsb_codename not in appconfig.SUPPORTED_LSB_RELEASES:
         raise ValueError("unsupported platform: %s" % lsb_codename)
@@ -221,7 +220,9 @@ def deploy(app):
             print("Deployment aborted.")
             return
 
-    require.deb.packages(app.require_deb)
+    require.deb.packages(
+        getattr(app, "require_deb_%s" % lsb_codename) + app.require_deb
+    )
     require.users.user(app.name, create_home=True, shell="/bin/bash")
     require.directory(str(app.www_dir), use_sudo=True)
     require.directory(str(app.www_dir / "files"), use_sudo=True)

@@ -1,10 +1,10 @@
 # test_deployment.py
 
-import argparse
 import pathlib
-import pytest
+import argparse
 from collections import namedtuple
 
+import pytest
 from clldappconfig import tasks
 from clldappconfig.tasks import deployment
 

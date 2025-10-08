@@ -125,6 +125,9 @@ class App(argparse.Namespace):
             "timeout": int,
             "deploy_duration": int,
             "require_deb": getwords,
+            "require_deb_focal": getwords,
+            "require_deb_jammy": getwords,
+            "require_deb_noble": getwords,
             "require_pip": getwords,
             "pg_unaccent": getboolean,
         }
